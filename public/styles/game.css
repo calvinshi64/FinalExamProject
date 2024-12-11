@@ -1,0 +1,44 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+header {
+    background-color: #333;
+    color: white;
+    padding: 1rem;
+}
+
+nav a {
+    color: white;
+    margin: 0 10px;
+    text-decoration: none;
+}
+
+#game-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2rem;
+}
+
+.anime-card {
+    text-align: center;
+    margin: 0 2rem;
+}
+
+.anime-card img {
+    width: 200px;
+    height: 300px;
+    object-fit: cover;
+}
+
+.vs {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.score-container {
+    margin-top: 2rem;
+    font-size: 1.2rem;
+}

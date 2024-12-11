@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/styles/game.css">
+</head>
+<body>
+    <header>
+        <h1>Anime Higher or Lower</h1>
+        <nav>
+            <a href="/home">Home</a>
+            <a href="/game">Game</a>
+            <a href="/leaderboard">Leaderboard</a>
+            <a href="/logout">Logout</a>
+        </nav>
+    </header>
+    <main>
+        <div id="game-container">
+            <div class="anime-card" id="anime1">
+                <img id="anime1-image" src="" alt="Anime 1 Image">
+                <h2 id="anime1-title"></h2>
+                <p id="anime1-rating">Ranked: <span id="anime1-rank"></span></p>
+            </div>
+            <div class="vs">VS</div>
+            <div class="anime-card" id="anime2">
+                <img id="anime2-image" src="" alt="Anime 2 Image">
+                <h2 id="anime2-title"></h2>
+                <p>Is it <button id="higher-button">Higher</button> or <button id="lower-button">Lower</button>?</p>
+            </div>
+        </div>
+        <div class="score-container">
+            <p>Highest Score: <span id="high-score"><%= highScore %></span></p>
+            <p>Current Score: <span id="current-score">0</span></p>
+        </div>
+    </main>
+    <script src="/game.js"></script>
+</body>
+</html>
