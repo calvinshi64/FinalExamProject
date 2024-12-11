@@ -3,7 +3,7 @@ let highScore = Number(document.getElementById("high-score").innerHTML);
 
 async function fetchAnimeData() {
     try {
-        const response = await fetch('/get-anime');
+        const response = await fetch('/api/anime');
         const data = await response.json();
 
         displayAnime(data.anime1, data.anime2);

@@ -49,7 +49,7 @@ async function insertUser(user) {
     .db(databaseAndCollection.db)
     .collection(databaseAndCollection.collection)
     .insertOne(user);
-  console.log(`Entry created with id ${result.insertedId}`);
+  console.log(result);
   return result;
 }
 
@@ -70,26 +70,26 @@ app.get("/", (req, res) => {
 
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
-  let user = await queryUser(username);
-  if (!user) {
-    const newUser = {
-      username: username,
-      password: password,
-      highScore: 0,
-    };
-    user = await insertUser(newUser);
-    req.session.user = {
-      id: user._id,
-      username: username,
-      highScore: 0,
-    };
-    req.session.save();
-    res.redirect("/home");
-  } else if (user.password !== password) {
-    res
-      .status(401)
-      .send('Incorrect password. Please try again. <a href="/">Go back</a>');
-  } else {
+
+  try {
+    let user = await queryUser(username);
+
+    if (!user) {
+      user = {
+        username: username,
+        password: password,
+        highScore: 0,
+      }
+      const result = await insertUser(user);
+      user._id = result.insertedId
+    }
+
+    if (user.password !== password) {
+      return res
+        .status(401)
+        .send('Incorrect password. Please try again. <a href="/">Go back</a>');
+    }
+
     req.session.user = {
       id: user._id,
       username: user.username,
@@ -97,6 +97,9 @@ app.post("/login", async (req, res) => {
     };
     req.session.save();
     res.redirect("/home");
+  } catch (error) {
+    console.error("Login error:", error);
+    res.status(500).send("Internal server error. Please try again later.");
   }
 });
 
@@ -122,7 +125,12 @@ app.get("/game", (req, res) => {
 });
 
 app.get("/leaderboard", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "leaderboard.html"));
+  if (!req.session.user) {
+    return res.redirect("/");
+  }
+  res.render("leaderboard", {
+    title: "Leaderboard",
+  });
 });
 
 app.get("/logout", (req, res) => {
@@ -151,7 +159,7 @@ async function fetchValidAnime() {
   return anime;
 }
 
-app.get("/get-anime", async (req, res) => {
+app.get("/api/anime", async (req, res) => {
   try {
     const anime1 = await fetchValidAnime();
     const anime2 = await fetchValidAnime();
@@ -189,6 +197,22 @@ app.post("/update-score", async (req, res) => {
   } catch (error) {
     console.error("Error updating high score:", error);
     res.status(500).send("Internal server error.");
+  }
+});
+
+app.get("/api/leaderboard", async (req, res) => {
+  try {
+    const leaderboard = await client
+      .db(databaseAndCollection.db)
+      .collection(databaseAndCollection.collection)
+      .find({})
+      .sort({ highScore: -1 })
+      // .limit(10) // Limit to top 10 players
+      .toArray();
+    res.json(leaderboard);
+  } catch (error) {
+    console.error("Error fetching leaderboard data:", error);
+    res.status(500).json({ error: "Failed to fetch leaderboard data" });
   }
 });
 
