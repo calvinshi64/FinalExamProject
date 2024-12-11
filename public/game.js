@@ -16,7 +16,7 @@ async function fetchAnimeData() {
 function displayAnime(anime1, anime2) {
     document.getElementById('anime1-image').src = anime1.image;
     document.getElementById('anime1-title').innerHTML = `"${anime1.title}"`;
-    document.getElementById('anime1-rank').innerHTML = `Number ${anime1.score}`;
+    document.getElementById('anime1-rank').innerHTML = `${anime1.score}`;
 
     document.getElementById('anime2-image').src = anime2.image;
     document.getElementById('anime2-title').innerHTML = `"${anime2.title}"`;
@@ -63,7 +63,6 @@ async function submitScore(score) {
         console.error('Error submitting score:', error);
     }
 }
-
 
 document.getElementById('higher-button').addEventListener('click', async () => handleGuess(true));
 document.getElementById('lower-button').addEventListener('click', async () => handleGuess(false));

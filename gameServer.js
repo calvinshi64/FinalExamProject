@@ -65,7 +65,9 @@ async function queryUser(username) {
 
 // Routes
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "login.html"));
+    res.render("login", {
+        title: "Login"
+    });
 });
 
 app.post("/login", async (req, res) => {
@@ -134,7 +136,9 @@ app.get("/leaderboard", (req, res) => {
 });
 
 app.get("/logout", (req, res) => {
-  res.sendFile(path.join(__dirname, "views", "login.html"));
+    res.render("login", {
+        title: "Login"
+    });
 });
 
 // API
