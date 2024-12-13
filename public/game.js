@@ -36,13 +36,13 @@ async function handleGuess(isHigher) {
         currentScore++;
         highScore = Math.max(highScore, currentScore);
         updateScores();
-        fetchAnimeData();
     } else {
         alert('Incorrect! Game Over.');
         await submitScore(currentScore);
         currentScore = 0;
         updateScores();
     }
+    fetchAnimeData();
 }
 
 function updateScores() {

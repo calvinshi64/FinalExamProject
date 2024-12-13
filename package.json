@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "gameServer.js",
   "scripts": {
-    "test": "nodemon gameServer.js"
+    "test": "nodemon gameServer.js 3000"
   },
   "author": "",
   "license": "ISC",

@@ -8,7 +8,11 @@ require("dotenv").config({ path: path.resolve(__dirname, "credentials/.env") });
 
 // Initialize Express app
 const app = express();
-const PORT = 3000;
+const args = process.argv.slice(2);
+if (args.length !== 1) {
+  console.log("Usage gameServer.js PORT");
+  process.exit(1);
+}
 
 // Connect to MongoDB
 const USERNAME = process.env.MONGO_DB_USERNAME;
@@ -65,9 +69,9 @@ async function queryUser(username) {
 
 // Routes
 app.get("/", (req, res) => {
-    res.render("login", {
-        title: "Login"
-    });
+  res.render("login", {
+    title: "Login",
+  });
 });
 
 app.post("/login", async (req, res) => {
@@ -76,17 +80,7 @@ app.post("/login", async (req, res) => {
   try {
     let user = await queryUser(username);
 
-    if (!user) {
-      user = {
-        username: username,
-        password: password,
-        highScore: 0,
-      }
-      const result = await insertUser(user);
-      user._id = result.insertedId
-    }
-
-    if (user.password !== password) {
+    if (!user || user.password !== password) {
       return res
         .status(401)
         .send('Incorrect password. Please try again. <a href="/">Go back</a>');
@@ -101,6 +95,44 @@ app.post("/login", async (req, res) => {
     res.redirect("/home");
   } catch (error) {
     console.error("Login error:", error);
+    res.status(500).send("Internal server error. Please try again later.");
+  }
+});
+
+app.get("/register", (req, res) => {
+  res.render("register", {
+    title: "Register",
+  });
+});
+
+app.post("/register", async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    let user = await queryUser(username);
+
+    if (user) {
+      return res
+        .status(401)
+        .send('User already exists. Please try again. <a href="/register">Go back</a>');
+    }
+    user = {
+      username: username,
+      password: password,
+      highScore: 0,
+    };
+    const result = await insertUser(user);
+    user._id = result.insertedId;
+
+    req.session.user = {
+      id: user._id,
+      username: user.username,
+      highScore: user.highScore,
+    };
+    req.session.save();
+    res.redirect("/home");
+  } catch (error) {
+    console.error("Registration error:", error);
     res.status(500).send("Internal server error. Please try again later.");
   }
 });
@@ -136,9 +168,9 @@ app.get("/leaderboard", (req, res) => {
 });
 
 app.get("/logout", (req, res) => {
-    res.render("login", {
-        title: "Login"
-    });
+  res.render("login", {
+    title: "Login",
+  });
 });
 
 // API
@@ -211,7 +243,6 @@ app.get("/api/leaderboard", async (req, res) => {
       .collection(databaseAndCollection.collection)
       .find({})
       .sort({ highScore: -1 })
-      // .limit(10) // Limit to top 10 players
       .toArray();
     res.json(leaderboard);
   } catch (error) {
@@ -220,7 +251,26 @@ app.get("/api/leaderboard", async (req, res) => {
   }
 });
 
-// Start server
+const PORT = args[0];
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
+});
+
+const prompt = "--- Type 'stop' to shutdown the server ---";
+console.log(prompt);
+process.stdin.setEncoding("utf8");
+process.stdin.on("readable", () => {
+  const dataInput = process.stdin.read();
+  if (dataInput !== null) {
+    const command = dataInput.trim();
+    if (command === "stop") {
+      console.log("Shutting down the server");
+      client.close();
+      process.exit(0);
+    } else {
+      console.log(`Invalid command: ${command}`);
+    }
+    console.log(prompt);
+    process.stdin.resume();
+  }
 });
