@@ -8,11 +8,7 @@ require("dotenv").config({ path: path.resolve(__dirname, "credentials/.env") });
 
 // Initialize Express app
 const app = express();
-const args = process.argv.slice(2);
-if (args.length !== 1) {
-  console.log("Usage gameServer.js PORT");
-  process.exit(1);
-}
+const PORT = process.env.PORT || 3001;
 
 // Connect to MongoDB
 const USERNAME = process.env.MONGO_DB_USERNAME;
@@ -251,26 +247,6 @@ app.get("/api/leaderboard", async (req, res) => {
   }
 });
 
-const PORT = args[0];
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
-});
-
-const prompt = "--- Type 'stop' to shutdown the server ---";
-console.log(prompt);
-process.stdin.setEncoding("utf8");
-process.stdin.on("readable", () => {
-  const dataInput = process.stdin.read();
-  if (dataInput !== null) {
-    const command = dataInput.trim();
-    if (command === "stop") {
-      console.log("Shutting down the server");
-      client.close();
-      process.exit(0);
-    } else {
-      console.log(`Invalid command: ${command}`);
-    }
-    console.log(prompt);
-    process.stdin.resume();
-  }
 });
